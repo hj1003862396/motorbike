@@ -1,0 +1,36 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Large files
+*.mp4
+*.avi
+*.mov
+*.weights
+*.cfg
+*.names
+*.jpeg
+*.jpg
+*.png
+
+# Output files
+output_detection*.mp4
+new_mask.jpeg
+
+# OS
+.DS_Store
+Thumbs.db

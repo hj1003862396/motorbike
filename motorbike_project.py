@@ -2,13 +2,13 @@ import cv2
 import numpy as np
 import datetime
 from object_detection import ObjectDetection
-from deep_sort.deep_sort import Deep
+from deep_sort_wrapper import Deep
 from grid import RectangularArea, CheckTool
 
 # Load Object Detection
-od = ObjectDetection("yolov4-custom_last.weights", "yolov4_test.cfg")
-od.load_class_names("classes.txt")
-od.load_detection_model(image_size=832, # 416 - 1280
+od = ObjectDetection("yolov4.weights", "yolov4.cfg")
+od.load_class_names("coco.names")
+od.load_detection_model(image_size=416, # 416 - 1280
                         nmsThreshold=0.4,
                         confThreshold=0.3)
 
@@ -20,8 +20,14 @@ deep = Deep(max_distance=0.7,
             max_iou_distance=0.7)
 tracker = deep.sort_tracker()
 
-mask = cv2.imread(r'D:\Project\Motorbike project\source code\new_mask.jpeg')
-cap = cv2.VideoCapture("xemay_xoay_ngang_lan.mp4")
+mask = cv2.imread("new_mask.jpeg")
+if mask is None:
+    print("Warning: Mask file not found. Using full frame.")
+
+cap = cv2.VideoCapture("a.mp4")
+if not cap.isOpened():
+    print("Warning: Video file not found. Using webcam instead.")
+    cap = cv2.VideoCapture(0)
 
 # Biến ______________________________________________________________________________________________
 frame_count = 0 # Để ghi frame khi xe vào từng vùng, bắt đầu từ frame 0
@@ -61,7 +67,14 @@ while True:
         break
     frame_count += 1
     timestamp += datetime.timedelta(seconds=1/30)
-    frame_region = cv2.bitwise_and(frame,mask)
+
+    # Apply mask if available
+    if mask is not None:
+        # Resize mask to match frame size
+        mask_resized = cv2.resize(mask, (frame.shape[1], frame.shape[0]))
+        frame_region = cv2.bitwise_and(frame, mask_resized)
+    else:
+        frame_region = frame
     """ 1. Object Detection """
     (class_ids, scores, boxes) = od.detect(frame_region)
     # for class_id, score, box in zip(class_ids, scores, boxes):
